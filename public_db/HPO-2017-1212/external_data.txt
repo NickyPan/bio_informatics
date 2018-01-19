@@ -1,0 +1,18 @@
+#
+# URLs to files needed for gene2phenotype
+#
+ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/mim2gene_medgen
+ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz
+
+######
+#
+# URLs to files provided by ORPHANET (http://www.orphadata.org/)
+
+# Diseases with their associated genes
+http://www.orphadata.org/data/xml/en_product6.xml
+
+
+### HPO-data
+http://compbio.charite.de/jenkins/job/hpo.annotations/lastSuccessfulBuild/artifact/misc/phenotype_annotation.tab
+http://purl.obolibrary.org/obo/hp.obo
+
