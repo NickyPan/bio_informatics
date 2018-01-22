@@ -1,13 +1,14 @@
 #! /usr/bin/perl -w
 use strict;
 use Getopt::Long;
-
+use Scalar::Util qw(looks_like_number);
 ##############usage##############################
 die "Usage:
     perl [script] -i [input_vcf] -o [output_file] -f [filter_maf] -d [genedab]
 
         -i  input:  vcf file
-        -o  output"
+        -o  output
+        -f  family index: father mother proband"
 unless @ARGV>=1;
 
 ########################
@@ -15,10 +16,17 @@ unless @ARGV>=1;
 my $in;
 my $out;
 my $db;
+my @family_index;
+my $eye;
+my $endo;
+my $nerv;
 Getopt::Long::GetOptions (
    'i=s' => \$in,
-   'o=s' => \$out
-
+   'o=s' => \$out,
+   'f=i' => \@family_index,
+   'eye+'  => \$eye,
+   'endo+'  => \$endo,
+   'nerv+'  => \$nerv,
 );
 
 open IN, "<$in"
@@ -32,11 +40,32 @@ my %rp_dis;
 my %fevr_dis;
 my %endo_dis;
 my %ner_dis;
+my $fa_index;
+my $mo_index;
+my $pro_index;
+my $IR_Ref="000000, 000100, 000101, 001101, 010000, 010100, 010001, 010101, 011101, 010111, 011111, 110001, 110101, 110111, 111111";
+my $novo_Ref="001100, 000001, 000011, 000111, 001111, 011100, 010011, 110000, 110100, 111100, 111101, 110011";
 
 my @result;
 
+if ($#family_index>0) {
+    $fa_index = $family_index[0];
+    $mo_index = $family_index[1];
+    $pro_index = $family_index[2];
+} else {
+    die "please input family index: father mother proband\n";
+}
+
 if ($in) {
-  acess_eye_panel();
+  if($eye) {
+    acess_eye_panel();
+  }
+  # if($endo) {
+  #   acess_eye_panel();
+  # }
+  # if($nerv) {
+  #   acess_eye_panel();
+  # }
   anno_whpanel();
   my $result=join"\n",@result;
   print OUT "$result";
@@ -153,11 +182,79 @@ sub acess_eye_panel {
 }
 
 sub acess_endocrine_panel {
+  my $endo_lct=0;
+  my $endo_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/endocrine_panel_1801.txt';
 
+  open endoDB, "<$endo_db"
+       or die "cannot open file $endo_db!\n";
+
+  while(<endoDB>) {
+     chomp;
+     s/\r$//;
+     $endo_lct++;
+     my @var=split/\t/,$_;
+
+     if($endo_lct>1) {
+
+       if(!exists($endo_dis{$var[1]})){
+        $endo_dis{$var[0]}=$var[1];
+
+       } else {
+         my @genedis=split/\;/,$endo_dis{$var[0]};
+         my $gdnum=0;
+         for (my $j=0;$j<=$#genedis;$j++) {
+           if($genedis[$j] ne $var[1]) {
+             $gdnum++;
+            } else {
+             $gdnum=0;
+             last;
+            }
+         }
+
+         if($gdnum!=0){
+           $endo_dis{$var[0]}.=";$var[1]";
+         }
+       }
+     }
+  }
 }
 
 sub acess_nervous_panel {
+  my $ner_lct=0;
+  my $ner_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/nervous_panel_1801.txt';
 
+  open nerDB, "<$ner_db"
+       or die "cannot open file $ner_db!\n";
+
+  while(<nerDB>) {
+     chomp;
+     s/\r$//;
+     $ner_lct++;
+     my @var=split/\t/,$_;
+
+     if($ner_lct>1) {
+
+       if(!exists($ner_dis{$var[1]})){
+        $ner_dis{$var[0]}=$var[1];
+
+       } else {
+         my @genedis=split/\;/,$ner_dis{$var[0]};
+         my $gdnum=0;
+         for (my $j=0;$j<=$#genedis;$j++) {
+           if($genedis[$j] ne $var[1]) {
+             $gdnum++;
+            } else {
+             $gdnum=0;
+             last;
+            }
+         }
+
+         if($gdnum!=0){
+           $ner_dis{$var[0]}.=";$var[1]";
+         }
+       }
+     }
+  }
 }
 
 sub anno_whpanel {
@@ -175,6 +272,26 @@ sub anno_whpanel {
    if($line_count>1) {
     my @line=split/\t/,$line;
     my @gene=split/,/,$line[6];
+    my $fa_line=substr($line[$fa_index],0,1) . substr($line[$fa_index],2,1);
+    my $mo_line=substr($line[$mo_index],0,1) . substr($line[$mo_index],2,1);
+    my $pro_line=substr($line[$pro_index],0,1) . substr($line[$pro_index],2,1);
+
+    # check Inheritance
+    my $IR_type;
+    if (looks_like_number($fa_line) && looks_like_number($mo_line) && looks_like_number($pro_line)) {
+        $IR_type=$fa_line . $mo_line . $pro_line;
+        my $is_IR=index $IR_Ref, $IR_type;
+        my $is_novo=index $novo_Ref, $IR_type;
+        if($is_novo>=0){
+            $line.="\tde novo";
+        } elsif($is_IR>=0) {
+            $line.="\tIR";
+        } else {
+            $line.="\tUnknow";
+        }
+    } else {
+        $line.="\t.";
+    }
 
     if($eye_length>0) {
       my @eye_dis;
@@ -244,15 +361,21 @@ sub anno_whpanel {
     push @result,$line;
 
    } else {
-     if($eye_length>0) {
-      push @result,join("\t",($line, 'eye_panel', 'RP/LCA', 'FEVR'));
-     }
-     if($endo_length>0) {
-      push @result,join("\t",($line, 'endo_panel'));
-     }
-     if($ner_length>0) {
-      push @result,join("\t",($line, 'nerv_panel'));
-     }
+    if($#family_index>0) {
+      $line.="\tInheritance";
+    }
+    if($eye_length>0) {
+      $line.="\teye_panel";
+      $line.="\tRP/LCA";
+      $line.="\tFEVR";
+    }
+    if($endo_length>0) {
+      $line.="\tendo_panel";
+    }
+    if($ner_length>0) {
+      $line.="\tnerv_panel";
+    }
+    push @result, $line;
    }
   }
 }

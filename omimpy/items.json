@@ -1,0 +1,9 @@
+[
+    {
+        "url": "http://www.omim.org/entry/113705",
+        "omim_num": "113705",
+        "description": "BRCA1 plays critical roles in DNA repair, cell cycle checkpoint control, and maintenance of genomic stability. BRCA1 forms several distinct complexes through association with different adaptor proteins, and each complex forms in a mutually exclusive manner (,).  ",
+        "location": "17q21.31",
+        "604370": ["{Pancreatic cancer, susceptibility to, 4}", "", null]
+    }
+]
