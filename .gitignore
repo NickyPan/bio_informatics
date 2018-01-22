@@ -8,6 +8,7 @@
 *.o
 *.so
 *.txt
+*.vcf
 
 # Packages #
 ############
@@ -45,3 +46,4 @@ Thumbs.db
 whanno_test/
 tools/
 .vscode/
+.test_files/

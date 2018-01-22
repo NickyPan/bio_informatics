@@ -15,7 +15,8 @@ die "Usage:
             -fd	file_dir
             -s	sh_dir
             -g	gatk_dir
-            -f  fastq_dir"
+            -f  fastq_dir
+            -nl  file name length"
 
  unless @ARGV>=1;
 
@@ -30,6 +31,7 @@ my $filedir;
 my $sh_dir;
 my $fq_dir;
 my $gk_dir;
+my $name_length;
 
 Getopt::Long::GetOptions (
     'cat+'  => \$is_cat,
@@ -42,6 +44,7 @@ Getopt::Long::GetOptions (
     's:s' => \$sh_dir,
     'g:s' => \$gk_dir,
     "f:s" => \$fq_dir,
+    "nl=s" => \$name_length,
 );
 
 my $basedir = "./";
@@ -123,7 +126,7 @@ if($is_cat) {
             syn_result_list($file);
         }
     }
-    
+
     my @key=keys %raw_vcf;
     foreach my $key (@key){
         my @sample=split/\t/,$raw_vcf{$key};
@@ -159,12 +162,12 @@ sub syn_cat_list {
 sub syn_result_list {
     my $name= $_[0];
     my $step1_sh=$type."_"."pe"."_step1.sh";
-    my $sample=substr($name,0,length($name)-12);
+    my $sample=substr($name,0,length($name)-$name_length);
 
     my $out_dir=$dir{$bed}."/".$filedir;
     if(!exists($dir_check{$out_dir})) {
         mkdir $out_dir;
-        $dir_check{$out_dir}=1; 
+        $dir_check{$out_dir}=1;
     }
 
     my $result_dir=$out_dir."/result";
