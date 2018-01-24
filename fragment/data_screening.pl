@@ -130,15 +130,15 @@ if($is_cat) {
     my @key=keys %raw_vcf;
     foreach my $key (@key){
         my @sample=split/\t/,$raw_vcf{$key};
-        push @output,"java -XX:ParallelGCThreads=1 -jar /opt/seqtools/gatk/GenomeAnalysisTK.jar \\ ";
-        push @output,"        -T GenotypeGVCFs \\ ";
-        push @output,"        -R $gk_dir/ucsc.hg19.fasta \\ ";
+        push @output,"nohup java -XX:ParallelGCThreads=1 -jar /opt/seqtools/gatk/GenomeAnalysisTK.jar \\";
+        push @output,"        -T GenotypeGVCFs \\";
+        push @output,"        -R $gk_dir/ucsc.hg19.fasta \\";
         foreach my $sp (@sample) {
-            push @output,"        -V $result{$key}/$sp \\ ";
+            push @output,"        -V $result{$key}/$sp \\";
         }
-        push @output,"        -o $result{$key}/$key.raw.vcf ";
+        push @output,"        -o $result{$key}/$key.raw.vcf &";
 
-        push @output,"table_annovar.pl $result{$key}/$key.raw.vcf /opt/seqtools/annovar/humandb -buildver hg19 -out $result{$key}/$key.anno -remove -protocol refGene,1000g2015aug_all,1000g2015aug_eas,dbscsnv11,cosmic70,clinvar_20170905,avsnp150,exac03,esp6500siv2_all,esp6500siv2_ea,dbnsfp33a -operation g,f,f,f,f,f,f,f,f,f,f -nastring . -vcfinput"
+        push @output,"nohup table_annovar.pl $result{$key}/$key.raw.vcf /opt/seqtools/annovar/humandb -buildver hg19 -out $result{$key}/$key.anno -remove -protocol refGene,1000g2015aug_all,1000g2015aug_eas,dbscsnv11,cosmic70,clinvar_20170905,avsnp150,exac03,esp6500siv2_all,esp6500siv2_ea,dbnsfp33a -operation g,f,f,f,f,f,f,f,f,f,f -nastring . -vcfinput &"
     }
 
     my $re=join"\n",@output;
