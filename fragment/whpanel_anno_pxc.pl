@@ -4,17 +4,19 @@ use Getopt::Long;
 use Scalar::Util qw(looks_like_number);
 ##############usage##############################
 die "Usage:
-    perl [script] -i [input_vcf] -o [output_file] -f [filter_maf] -d [genedab]
+    perl [script] -i [input_txt] -o [output_file] -f [filter_maf] -d [genedab]
 
-        -i  input:  vcf file
-        -o  output
-        -f  family index: father mother proband"
+        -i  input:  txt file
+        -f  family index: father mother proband
+        -maf  filter_maf
+        -d  genedb"
 unless @ARGV>=1;
 
 ########################
 
 my $in;
 my $out;
+my $maf;
 my $db;
 my @family_index;
 my $eye;
@@ -22,24 +24,23 @@ my $endo;
 my $nerv;
 Getopt::Long::GetOptions (
    'i=s' => \$in,
-   'o=s' => \$out,
    'f=i' => \@family_index,
    'eye+'  => \$eye,
    'endo+'  => \$endo,
    'nerv+'  => \$nerv,
+   'maf:f' => \$maf,
+   'd:s' => \$db,
 );
 
 open IN, "<$in"
      or die "Cannot open file $in!\n";
+$in=~ m/.anno.hg19_multianno.txt/;
+my $file_name=$`;
+$out=$file_name.".anno.hg19_multianno.wh_anno.txt";
+
 open OUT, ">$out"
      or die "Cannot open file $out!\n";
 
-my %gene_dis;
-my %eye_dis;
-my %rp_dis;
-my %fevr_dis;
-my %endo_dis;
-my %ner_dis;
 my $fa_index;
 my $mo_index;
 my $pro_index;
@@ -48,24 +49,29 @@ my $novo_Ref="001100, 000001, 000011, 000111, 001111, 011100, 010011, 110000, 11
 
 my @result;
 
+my $is_IRanno=0;
+
 if ($#family_index>0) {
     $fa_index = $family_index[0];
     $mo_index = $family_index[1];
     $pro_index = $family_index[2];
+    $is_IRanno=1;
 } else {
-    die "please input family index: father mother proband\n";
+    print "no Inheritance annotate\n";
 }
 
 if ($in) {
+  # acess_header();
+  acess_genedb();
   if($eye) {
     acess_eye_panel();
   }
-  # if($endo) {
-  #   acess_eye_panel();
-  # }
-  # if($nerv) {
-  #   acess_eye_panel();
-  # }
+  if($endo) {
+    acess_eye_panel();
+  }
+  if($nerv) {
+    acess_eye_panel();
+  }
   anno_whpanel();
   my $result=join"\n",@result;
   print OUT "$result";
@@ -73,6 +79,71 @@ if ($in) {
   print 'fail'
 }
 
+my %chr_pos_dis;
+my %gene_dis;
+my %mut_dis;
+sub acess_genedb {
+  open DB, "<$db"
+     or die "cannot open file $db!\n";
+
+  my $db_lct=0;
+
+  while(<DB>) {
+    chomp;
+    s/\r$//;
+    $db_lct++;
+    my @var=split/\t/,$_;
+    my $chr_pos="chr".$var[0].":".$var[1];
+    my $mut=$chr_pos.":".$var[3]."-".$var[4];
+
+    if($db_lct>1) {
+
+      if(!exists($chr_pos_dis{$chr_pos}) ){
+        $chr_pos_dis{$chr_pos}=$chr_pos."|".$var[5]."|".$var[6]."|".$var[7]."|".$var[9]."|".$var[10]."|".$var[11]."|".$var[12]."|".$var[13];
+      } else {
+        my @chrposdis=split/\;/,$chr_pos_dis{$chr_pos};
+
+        for(my $i=0;$i<=$#chrposdis;$i++) {
+          if($chrposdis[$i] ne $chr_pos."|".$var[5]."|".$var[6]."|".$var[7]."|".$var[9]."|".$var[10]."|".$var[11]."|".$var[12]."|".$var[13]){
+            $chr_pos_dis{$chr_pos}.=";".$chr_pos."|".$var[5]."|".$var[6]."|".$var[7]."|".$var[9]."|".$var[10]."|".$var[11]."|".$var[12]."|".$var[13];
+          }
+        }
+      }
+
+      if(!exists($gene_dis{$var[9]})){
+        $gene_dis{$var[9]}=$var[13];
+
+      } else {
+        my @genedis=split/\;/,$gene_dis{$var[9]};
+        # print "@genedis\n";
+        my $gdnum=0;
+        for (my $j=0;$j<=$#genedis;$j++) {
+          if($genedis[$j] ne $var[13]) {
+            $gdnum++;
+            } else {
+            $gdnum=0;
+            last;
+            }
+        }
+
+        if($gdnum!=0){
+          $gene_dis{$var[9]}.=";$var[13]";
+        }
+
+      }
+
+      if(!exists($mut_dis{$mut})){
+        $mut_dis{$mut}=$mut."|".$var[5]."|".$var[6]."|".$var[7]."|".$var[9]."|".$var[10]."|".$var[11]."|".$var[12]."|".$var[13];
+      }else {
+        $mut_dis{$mut}.=";".$mut."|".$var[5]."|".$var[6]."|".$var[7]."|".$var[9]."|".$var[10]."|".$var[11]."|".$var[12]."|".$var[13];
+      }
+    }
+  }
+}
+
+my %eye_dis;
+my %rp_dis;
+my %fevr_dis;
 sub acess_eye_panel {
 
   my $eye_lct=0;
@@ -181,6 +252,7 @@ sub acess_eye_panel {
   }
 }
 
+my %endo_dis;
 sub acess_endocrine_panel {
   my $endo_lct=0;
   my $endo_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/endocrine_panel_1801.txt';
@@ -219,6 +291,7 @@ sub acess_endocrine_panel {
   }
 }
 
+my %ner_dis;
 sub acess_nervous_panel {
   my $ner_lct=0;
   my $ner_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/nervous_panel_1801.txt';
@@ -257,6 +330,30 @@ sub acess_nervous_panel {
   }
 }
 
+my $header;
+my @headin;
+my @header_old;
+my $header_fixed;
+my $line_old;
+sub acess_header {
+  open RAW_VCF, "<$file_name.raw.vcf"
+       or die "cannot open file $file_name.raw.vcf!\n";
+  while (<RAW_VCF>) {
+    if ($_ =~ /\#CHROM/){
+      chomp ;
+      $header = $_;
+      $header =~ s/\#//;
+      @headin = split (/\t/,$header);
+    }
+  }
+  unshift (@headin,("C1", "C2"));
+  $line_old= $_[0];
+  chomp $line_old;
+  @header_old=split (/\t/, $line_old);
+  push @header_old, @headin;
+  $header_fixed=join ("\t", @header_old);
+}
+
 sub anno_whpanel {
   my $line_count=0;
   my $line;
@@ -266,116 +363,159 @@ sub anno_whpanel {
   my $endo_length = keys %endo_dis;
   my $ner_length = keys %ner_dis;
   while(<IN>) {
-   chomp;
-   $line=$_;
-   $line_count++;
-   if($line_count>1) {
-    my @line=split/\t/,$line;
-    my @gene=split/,/,$line[6];
-    my $fa_line=substr($line[$fa_index],0,1) . substr($line[$fa_index],2,1);
-    my $mo_line=substr($line[$mo_index],0,1) . substr($line[$mo_index],2,1);
-    my $pro_line=substr($line[$pro_index],0,1) . substr($line[$pro_index],2,1);
+    chomp;
+    $line=$_;
 
-    # check Inheritance
-    my $IR_type;
-    if (looks_like_number($fa_line) && looks_like_number($mo_line) && looks_like_number($pro_line)) {
-        $IR_type=$fa_line . $mo_line . $pro_line;
-        my $is_IR=index $IR_Ref, $IR_type;
-        my $is_novo=index $novo_Ref, $IR_type;
-        if($is_novo>=0){
-            $line.="\tde novo";
-        } elsif($is_IR>=0) {
-            $line.="\tIR";
+    #fix header
+    if ($line_count == 0) {
+      acess_header($line);
+      $line=$header_fixed;
+      print "fixing_header done!\n";
+    }
+    $line_count++;
+
+    #start annovar
+    if($line_count>1) {
+      my @line=split/\t/,$line;
+      my @gene=split/,/,$line[6];
+      my $mutation=$line[0].":$line[1]".":$line[3]"."-$line[4]";
+      my $chr_site=$line[0].":$line[1]";
+
+      if(($line[10] eq "." or $line[10]*1<$maf) and ($line[11] eq "." or $line[11]*1<$maf) and ($line[21] eq "." or $line[21]*1<$maf) and ($line[23] eq "." or $line[23]*1<$maf)  and($line[29] eq "." or $line[29]*1<$maf) ) {
+        if(!exists($mut_dis{$mutation})) {
+            $line.="\t.";
         } else {
-            $line.="\tUnknow";
+            $line.="\t$mut_dis{$mutation}";
         }
+        if(!exists($chr_pos_dis{$chr_site})) {
+            $line.="\t.";
+        } else {
+            $line.="\t$chr_pos_dis{$chr_site}";
+        }
+        my @gene_dis;
+        for(my $i=0;$i<=$#gene;$i++) {
+          if(!exists($gene_dis{$gene[$i]}) and $gene[$i]ne".") {
+            push @gene_dis,".";
+          } elsif(exists($gene_dis{$gene[$i]}) and $gene[$i]ne".") {
+            push @gene_dis,$gene_dis{$gene[$i]};
+
+          }else {
+            push @gene_dis,".";
+          }
+        }
+        $line.="\t".(join".",@gene_dis);
+
+        if ( $is_IRanno ) {
+          my $fa_line=substr($line[$fa_index],0,1) . substr($line[$fa_index],2,1);
+          my $mo_line=substr($line[$mo_index],0,1) . substr($line[$mo_index],2,1);
+          my $pro_line=substr($line[$pro_index],0,1) . substr($line[$pro_index],2,1);
+
+          # check Inheritance
+          my $IR_type;
+          if (looks_like_number($fa_line) && looks_like_number($mo_line) && looks_like_number($pro_line)) {
+              $IR_type=$fa_line . $mo_line . $pro_line;
+              my $is_IR=index $IR_Ref, $IR_type;
+              my $is_novo=index $novo_Ref, $IR_type;
+              if($is_novo>=0){
+                  $line.="\tde novo";
+              } elsif($is_IR>=0) {
+                  $line.="\tIR";
+              } else {
+                  $line.="\tUnknow";
+              }
+          } else {
+              $line.="\t.";
+          }
+        }
+
+        if($eye_length>0) {
+          my @eye_dis;
+          for(my $i=0;$i<=$#gene;$i++) {
+            if(exists($eye_dis{$gene[$i]}) and $gene[$i]ne".") {
+              push @eye_dis,$eye_dis{$gene[$i]};
+
+            }else {
+              push @eye_dis,".";
+            }
+          }
+          $line.="\t".(join".",@eye_dis);
+        }
+
+        if($rp_length>0) {
+          my @rp_dis;
+          for(my $i=0;$i<=$#gene;$i++) {
+            if(exists($rp_dis{$gene[$i]}) and $gene[$i]ne".") {
+              push @rp_dis,$rp_dis{$gene[$i]};
+
+            }else {
+              push @rp_dis,".";
+            }
+          }
+          $line.="\t".(join".",@rp_dis);
+        }
+
+        if($fevr_length>0) {
+          my @fevr_dis;
+          for(my $i=0;$i<=$#gene;$i++) {
+            if(exists($fevr_dis{$gene[$i]}) and $gene[$i]ne".") {
+              push @fevr_dis,$fevr_dis{$gene[$i]};
+
+            }else {
+              push @fevr_dis,".";
+            }
+          }
+          $line.="\t".(join".",@fevr_dis);
+        }
+
+        if($endo_length>0) {
+          my @endo_dis;
+          for(my $i=0;$i<=$#gene;$i++) {
+            if(exists($endo_dis{$gene[$i]}) and $gene[$i]ne".") {
+              push @endo_dis,$endo_dis{$gene[$i]};
+
+            }else {
+              push @endo_dis,".";
+            }
+          }
+          $line.="\t".(join".",@endo_dis);
+        }
+
+        if($ner_length>0) {
+          my @ner_dis;
+          for(my $i=0;$i<=$#gene;$i++) {
+            if(exists($ner_dis{$gene[$i]}) and $gene[$i]ne".") {
+              push @ner_dis,$ner_dis{$gene[$i]};
+
+            }else {
+              push @ner_dis,".";
+            }
+          }
+          $line.="\t".(join".",@ner_dis);
+        }
+
+        push @result,$line;
+
+      }
+
     } else {
-        $line.="\t.";
-    }
-
-    if($eye_length>0) {
-      my @eye_dis;
-      for(my $i=0;$i<=$#gene;$i++) {
-        if(exists($eye_dis{$gene[$i]}) and $gene[$i]ne".") {
-          push @eye_dis,$eye_dis{$gene[$i]};
-
-        }else {
-          push @eye_dis,".";
-        }
+      $line.="\tmut_dis";
+      $line.="\tsite_dis";
+      $line.="\tgene_dis";
+      if($is_IRanno) {
+        $line.="\tInheritance";
       }
-      $line.="\t".(join"|",@eye_dis);
-    }
-
-    if($rp_length>0) {
-      my @rp_dis;
-      for(my $i=0;$i<=$#gene;$i++) {
-        if(exists($rp_dis{$gene[$i]}) and $gene[$i]ne".") {
-          push @rp_dis,$rp_dis{$gene[$i]};
-
-        }else {
-          push @rp_dis,".";
-        }
+      if($eye) {
+        $line.="\teye_panel";
+        $line.="\tRP/LCA";
+        $line.="\tFEVR";
       }
-      $line.="\t".(join"|",@rp_dis);
-    }
-
-    if($fevr_length>0) {
-      my @fevr_dis;
-      for(my $i=0;$i<=$#gene;$i++) {
-        if(exists($fevr_dis{$gene[$i]}) and $gene[$i]ne".") {
-          push @fevr_dis,$fevr_dis{$gene[$i]};
-
-        }else {
-          push @fevr_dis,".";
-        }
+      if($endo) {
+        $line.="\tendo_panel";
       }
-      $line.="\t".(join"|",@fevr_dis);
-    }
-
-    if($endo_length>0) {
-      my @endo_dis;
-      for(my $i=0;$i<=$#gene;$i++) {
-        if(exists($endo_dis{$gene[$i]}) and $gene[$i]ne".") {
-          push @endo_dis,$endo_dis{$gene[$i]};
-
-        }else {
-          push @endo_dis,".";
-        }
+      if($nerv) {
+        $line.="\tnerv_panel";
       }
-      $line.="\t".(join"|",@endo_dis);
+      push @result, $line;
     }
-
-    if($ner_length>0) {
-      my @ner_dis;
-      for(my $i=0;$i<=$#gene;$i++) {
-        if(exists($ner_dis{$gene[$i]}) and $gene[$i]ne".") {
-          push @ner_dis,$ner_dis{$gene[$i]};
-
-        }else {
-          push @ner_dis,".";
-        }
-      }
-      $line.="\t".(join"|",@ner_dis);
-    }
-
-    push @result,$line;
-
-   } else {
-    if($#family_index>0) {
-      $line.="\tInheritance";
-    }
-    if($eye_length>0) {
-      $line.="\teye_panel";
-      $line.="\tRP/LCA";
-      $line.="\tFEVR";
-    }
-    if($endo_length>0) {
-      $line.="\tendo_panel";
-    }
-    if($ner_length>0) {
-      $line.="\tnerv_panel";
-    }
-    push @result, $line;
-   }
   }
 }
