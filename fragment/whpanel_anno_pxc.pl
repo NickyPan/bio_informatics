@@ -2,6 +2,8 @@
 use strict;
 use Getopt::Long;
 use Scalar::Util qw(looks_like_number);
+use Math::Combinatorics;
+use Data::Dumper;
 ##############usage##############################
 die "Usage:
     perl [script] -i [input_txt] -o [output_file] -f [filter_maf] -d [genedab]
@@ -44,18 +46,25 @@ open OUT, ">$out"
 my $fa_index;
 my $mo_index;
 my $pro_index;
+my $IR_type;
+my @IR_array;
+my %combine_array;
 my $IR_Ref="000000, 000100, 000101, 001101, 010000, 010100, 010001, 010101, 011101, 010111, 011111, 110001, 110101, 110111, 111111";
 my $novo_Ref="001100, 000001, 000011, 000111, 001111, 011100, 010011, 110000, 110100, 111100, 111101, 110011";
 
 my @result;
 
 my $is_IRanno=0;
+my $is_Relation=0;
 
-if ($#family_index>0) {
+if (scalar(@family_index)>2) {
     $fa_index = $family_index[0];
     $mo_index = $family_index[1];
     $pro_index = $family_index[2];
     $is_IRanno=1;
+    $is_Relation=1;
+} elsif(scalar(@family_index)>1 && scalar(@family_index)<3) {
+    $is_Relation=1;
 } else {
     print "no Inheritance annotate\n";
 }
@@ -73,6 +82,9 @@ if ($in) {
     acess_eye_panel();
   }
   anno_whpanel();
+  if($is_Relation) {
+    cal_relation_per();
+  }
   my $result=join"\n",@result;
   print OUT "$result";
 } else {
@@ -381,7 +393,30 @@ sub anno_whpanel {
       my $mutation=$line[0].":$line[1]".":$line[3]"."-$line[4]";
       my $chr_site=$line[0].":$line[1]";
 
-      if(($line[10] eq "." or $line[10]*1<$maf) and ($line[11] eq "." or $line[11]*1<$maf) and ($line[21] eq "." or $line[21]*1<$maf) and ($line[23] eq "." or $line[23]*1<$maf)  and($line[29] eq "." or $line[29]*1<$maf) ) {
+      if ( $is_IRanno ) {
+        my $fa_line=substr($line[$fa_index],0,1) . substr($line[$fa_index],2,1);
+        my $mo_line=substr($line[$mo_index],0,1) . substr($line[$mo_index],2,1);
+        my $pro_line=substr($line[$pro_index],0,1) . substr($line[$pro_index],2,1);
+        $IR_type=$fa_line . $mo_line . $pro_line;
+      }
+
+      #check the parent-child relation
+      if ($is_Relation) {
+        if(looks_like_number($line[24]) && ($line[24] > 0.02 && $line[24] < 0.08)) {
+          if ( $is_IRanno ) {
+            push (@IR_array, $IR_type);
+          }
+          my $combinat = Math::Combinatorics->new(count => 2, data => [@family_index]);
+          while(my @combo = $combinat->next_combination){
+            my $combin_type = substr($line[$combo[0]],0,1) . substr($line[$combo[0]],2,1) . substr($line[$combo[1]],0,1) . substr($line[$combo[1]],2,1);
+            my $combin_title = "$combo[0]-$combo[1]";
+            push( @{ $combine_array{$combin_title} }, $combin_type);
+          }
+        }
+      }
+
+      #start filter and anotate
+      if(($line[10] eq "." or $line[10]*1<$maf) and ($line[11] eq "." or $line[11]*1<$maf) and ($line[21] eq "." or $line[21]*1<$maf) and ($line[24] eq "." or $line[24]*1<$maf)  and($line[29] eq "." or $line[29]*1<$maf) ) {
         if(!exists($mut_dis{$mutation})) {
             $line.="\t.";
         } else {
@@ -405,15 +440,9 @@ sub anno_whpanel {
         }
         $line.="\t".(join".",@gene_dis);
 
+        # check Inheritance
         if ( $is_IRanno ) {
-          my $fa_line=substr($line[$fa_index],0,1) . substr($line[$fa_index],2,1);
-          my $mo_line=substr($line[$mo_index],0,1) . substr($line[$mo_index],2,1);
-          my $pro_line=substr($line[$pro_index],0,1) . substr($line[$pro_index],2,1);
-
-          # check Inheritance
-          my $IR_type;
-          if (looks_like_number($fa_line) && looks_like_number($mo_line) && looks_like_number($pro_line)) {
-              $IR_type=$fa_line . $mo_line . $pro_line;
+          if (looks_like_number($IR_type)) {
               my $is_IR=index $IR_Ref, $IR_type;
               my $is_novo=index $novo_Ref, $IR_type;
               if($is_novo>=0){
@@ -517,5 +546,45 @@ sub anno_whpanel {
       }
       push @result, $line;
     }
+  }
+}
+
+sub cal_relation_per {
+  my $line_title = $result[0];
+  chomp $line_title;
+  my @line_name = split (/\t/, $line_title);
+  if ($is_IRanno) {
+    my $IR_ok=0;
+    my $IR_reject=0;
+    for( my $i = 0; $i < scalar(@IR_array); $i++ ){
+      if (looks_like_number($IR_array[$i])) {
+        if ($IR_array[$i] == "000000" or $IR_array[$i] == "000100" or $IR_array[$i] == "000101" or $IR_array[$i] == "001101" or $IR_array[$i] == "010000" or $IR_array[$i] == "010100" or $IR_array[$i] == "010001" or $IR_array[$i] == "010101" or $IR_array[$i] == "011101" or $IR_array[$i] == "010111" or $IR_array[$i] == "011111" or $IR_array[$i] == "110001" or $IR_array[$i] == "110101" or $IR_array[$i] == "110111" or $IR_array[$i] == "111111") {
+          $IR_ok++;
+        } elsif ($IR_array[$i] == "001100" or $IR_array[$i] == "000001" or $IR_array[$i] == "000011" or $IR_array[$i] == "000111" or $IR_array[$i] == "001111" or $IR_array[$i] == "011100" or $IR_array[$i] == "010011" or $IR_array[$i] == "110000" or $IR_array[$i] == "110100" or $IR_array[$i] == "111100" or $IR_array[$i] == "111101" or $IR_array[$i] == "110011" ) {
+          $IR_reject++
+        }
+      }
+    }
+    my $IR_per=sprintf("%.2f", ($IR_ok/($IR_ok + $IR_reject))*100);
+    $result[0].="\tP-C($IR_per%)";
+  }
+  my @combine_name = keys %combine_array;
+  for( my $i = 0; $i < scalar(@combine_name); $i++ ){
+    my $combine_ok=0;
+    my $combine_reject=0;
+    my @combine_text=values $combine_array{$combine_name[$i]};
+    for( my $j = 0; $j < scalar(@combine_text); $j++ ){
+      if (looks_like_number($combine_text[$j])) {
+        if ($combine_text[$j] == "0000" or $combine_text[$j] == "0001" or $combine_text[$j] == "0100" or $combine_text[$j] == "0101" or $combine_text[$j] == "0111" or $combine_text[$j] == "1101" or $combine_text[$j] == "1111" ) {
+          $combine_ok++;
+        } elsif ( $combine_text[$j] == "1100" or $combine_text[$j] == "0011" ) {
+          $combine_reject++;
+        }
+      }
+    }
+    my $combine_per=sprintf("%.2f", ($combine_ok/($combine_ok + $combine_reject))*100);
+    my $name1=substr($combine_name[$i],0,3);
+    my $name2=substr($combine_name[$i],4,3);
+    $result[0].="\t$line_name[$name1]-$line_name[$name2]($combine_per%)";
   }
 }
