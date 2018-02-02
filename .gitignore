@@ -7,7 +7,6 @@
 *.exe
 *.o
 *.so
-*.txt
 *.vcf
 
 # Packages #

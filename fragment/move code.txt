@@ -1,0 +1,1 @@
+mv QW3352_S62_R1.fastq.gz.anno.hg19_multianno.wh_anno.txt QW3352_S62.g.vcf QW3352_S62.g.vcf.idx QW3352_S62.recal.dedup.sorted.bam QW3352_S62.recal.dedup.sorted.bai QW3352_S62_R1.fastq.gz.anno.hg19_multianno.txt QW3352_S62.dedup.sorted.depth.target.txt /mnt/workshop/xinchen.pan/WES_Project_Done/QW3352_3358_3359_3360
