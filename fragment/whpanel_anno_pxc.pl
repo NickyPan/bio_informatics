@@ -51,6 +51,7 @@ my @IR_array;
 my %combine_array;
 my $IR_Ref="000000, 000100, 000101, 001101, 010000, 010100, 010001, 010101, 011101, 010111, 011111, 110001, 110101, 110111, 111111";
 my $novo_Ref="001100, 000001, 000011, 000111, 001111, 011100, 010011, 110000, 110100, 111100, 111101, 110011";
+my @secondary_gene=("Gene","BRCA1","BRCA2","TP53","STK11","MLH1","MSH2","MSH6","PMS2","APC","MUTYH","VHL","MEN1","RET","PTEN","RB1","SDHD","SDHAF2","SDHC","SDHB","TSC1","TSC2","WT1","NF2","COL3A1","FBN1","TGFBR1","TGFBR2","SMAD3","ACTA2","MYLK","MYH11","MYBPC3","MYH7","TNNT2","TNNI3","TPM1","MYL3","ACTC1","PRKAG2","GLA","MYL2","LMNA","RYR2","PKP2","DSP","DSC2","TMEM43","DSG2","KCNQ1","KCNH2","SCN5A","LDLR","APOB","PCSK9","RYR1","CACNA1S","BMPR1A","SMAD4","ATP7B","OTC");
 
 my @result;
 
@@ -402,7 +403,7 @@ sub anno_whpanel {
 
       #check the parent-child relation
       if ($is_Relation) {
-        if(looks_like_number($line[24]) && ($line[24] > 0.02 && $line[24] < 0.08)) {
+        if(looks_like_number($line[24]) && ($line[24] > 0.45 && $line[24] < 0.55)) {
           if ( $is_IRanno ) {
             push (@IR_array, $IR_type);
           }
@@ -417,15 +418,16 @@ sub anno_whpanel {
 
       #start filter and anotate
       if(($line[10] eq "." or $line[10]*1<$maf) and ($line[11] eq "." or $line[11]*1<$maf) and ($line[21] eq "." or $line[21]*1<$maf) and ($line[24] eq "." or $line[24]*1<$maf)  and($line[29] eq "." or $line[29]*1<$maf) ) {
+
         if(!exists($mut_dis{$mutation})) {
-            $line.="\t.";
+            push (@line, ".");
         } else {
-            $line.="\t$mut_dis{$mutation}";
+            push (@line, $mut_dis{$mutation});
         }
         if(!exists($chr_pos_dis{$chr_site})) {
-            $line.="\t.";
+            push (@line, ".");
         } else {
-            $line.="\t$chr_pos_dis{$chr_site}";
+            push (@line, $chr_pos_dis{$chr_site});
         }
         my @gene_dis;
         for(my $i=0;$i<=$#gene;$i++) {
@@ -438,7 +440,27 @@ sub anno_whpanel {
             push @gene_dis,".";
           }
         }
-        $line.="\t".(join".",@gene_dis);
+        push (@line, (join".",@gene_dis));
+
+        my $pred_high=0;
+        my $pred_low=0;
+        my @line_pred=(33,36,42,45,48,51,54,59,62,64,73);
+        foreach my $pred (@line_pred){
+            if ($line[$pred] && $line[$pred] ne ".") {
+              if ($line[$pred] eq "D" or $line[$pred] eq "A" or $line[$pred] eq "H") {
+                $pred_high++;
+              } else {
+                $pred_low++;
+              }
+            }
+        }
+        if($pred_high>0 or $pred_low>0) {
+          my $pred_total=$pred_high + $pred_low;
+          my $pred_mean=sprintf("%.2f", ($pred_high/$pred_total)*100);
+          push (@line, "$pred_mean%","$pred_high|$pred_total");
+        } else {
+          push (@line, ".", ".");
+        }
 
         # check Inheritance
         if ( $is_IRanno ) {
@@ -446,14 +468,14 @@ sub anno_whpanel {
               my $is_IR=index $IR_Ref, $IR_type;
               my $is_novo=index $novo_Ref, $IR_type;
               if($is_novo>=0){
-                  $line.="\tde novo";
+                  push (@line, "de novo");
               } elsif($is_IR>=0) {
-                  $line.="\tIR";
+                  push (@line, "IR");
               } else {
-                  $line.="\tUnknow";
+                  push (@line, "Unknow");
               }
           } else {
-              $line.="\t.";
+              push (@line, ".");
           }
         }
 
@@ -467,7 +489,7 @@ sub anno_whpanel {
               push @eye_dis,".";
             }
           }
-          $line.="\t".(join".",@eye_dis);
+          push (@line, (join".",@eye_dis));
         }
 
         if($rp_length>0) {
@@ -480,7 +502,7 @@ sub anno_whpanel {
               push @rp_dis,".";
             }
           }
-          $line.="\t".(join".",@rp_dis);
+          push (@line, (join".",@rp_dis));
         }
 
         if($fevr_length>0) {
@@ -493,7 +515,7 @@ sub anno_whpanel {
               push @fevr_dis,".";
             }
           }
-          $line.="\t".(join".",@fevr_dis);
+          push (@line, (join".",@fevr_dis));
         }
 
         if($endo_length>0) {
@@ -506,7 +528,7 @@ sub anno_whpanel {
               push @endo_dis,".";
             }
           }
-          $line.="\t".(join".",@endo_dis);
+          push (@line, (join".",@endo_dis));
         }
 
         if($ner_length>0) {
@@ -519,17 +541,24 @@ sub anno_whpanel {
               push @ner_dis,".";
             }
           }
-          $line.="\t".(join".",@ner_dis);
+          push (@line, (join".",@ner_dis));
         }
 
-        push @result,$line;
+        foreach my $gene_name(@gene){
+          if (grep {$_ eq $gene_name} @secondary_gene) {
+            $gene_name.="*";
+            print "$gene_name\n";
+          }
+        }
+        $line[6]=join",", @gene;
+
+        my $new_line=join("\t",@line);
+        push @result,$new_line;
 
       }
 
     } else {
-      $line.="\tmut_dis";
-      $line.="\tsite_dis";
-      $line.="\tgene_dis";
+      $line.="\tmut_dis\tsite_dis\tgene_dis\tpred_per\tpred_stats";
       if($is_IRanno) {
         $line.="\tInheritance";
       }
