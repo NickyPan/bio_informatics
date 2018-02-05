@@ -71,7 +71,7 @@ if (scalar(@family_index)>2) {
 }
 
 if ($in) {
-  # acess_header();
+  acess_header();
   acess_genedb();
   if($eye) {
     acess_eye_panel();
@@ -365,6 +365,7 @@ sub acess_header {
   @header_old=split (/\t/, $line_old);
   push @header_old, @headin;
   $header_fixed=join ("\t", @header_old);
+  print "fixing_header done!\n";
 }
 
 sub anno_whpanel {
@@ -383,7 +384,6 @@ sub anno_whpanel {
     if ($line_count == 0) {
       acess_header($line);
       $line=$header_fixed;
-      print "fixing_header done!\n";
     }
     $line_count++;
 
@@ -403,7 +403,7 @@ sub anno_whpanel {
 
       #check the parent-child relation
       if ($is_Relation) {
-        if(looks_like_number($line[25]) && ($line[25] > 0.45 && $line[25] < 0.55)) {
+        if(looks_like_number($line[24]) && ($line[24] > 0.45 && $line[24] < 0.55)) {
           if ( $is_IRanno ) {
             push (@IR_array, $IR_type);
           }
@@ -417,7 +417,7 @@ sub anno_whpanel {
       }
 
       #start filter and anotate
-      if(($line[10] eq "." or $line[10]*1<$maf) and ($line[11] eq "." or $line[11]*1<$maf) and ($line[21] eq "." or $line[21]*1<$maf) and ($line[25] eq "." or $line[25]*1<$maf)  and($line[30] eq "." or $line[30]*1<$maf) ) {
+      if(($line[10] eq "." or $line[10]*1<$maf) and ($line[11] eq "." or $line[11]*1<$maf) and ($line[21] eq "." or $line[21]*1<$maf) and ($line[24] eq "." or $line[24]*1<$maf)  and($line[29] eq "." or $line[29]*1<$maf) ) {
 
         if(!exists($mut_dis{$mutation})) {
             push (@line, ".");
