@@ -163,9 +163,9 @@ sub acess_eye_panel {
   my $rp_lct=0;
   my $fver_lct=0;
 
-  my $eye_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/eye_panel_1801.txt';
-  my $rp_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/rplca_1801.txt';
-  my $fevr_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/fevr_1801.txt';
+  my $eye_db = '/mnt/workshop/xinchen.pan/pipeline/bio_informatics/wh_db/eye_panel.txt';
+  my $rp_db = '/mnt/workshop/xinchen.pan/pipeline/bio_informatics/wh_db/rplca_panel.txt';
+  my $fevr_db = '/mnt/workshop/xinchen.pan/pipeline/bio_informatics/wh_db/fevr_panel.txt';
 
   open eyeDB, "<$eye_db"
        or die "cannot open file $eye_db!\n";
@@ -268,7 +268,7 @@ sub acess_eye_panel {
 my %endo_dis;
 sub acess_endocrine_panel {
   my $endo_lct=0;
-  my $endo_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/endocrine_panel_1801.txt';
+  my $endo_db = '/mnt/workshop/xinchen.pan/pipeline/bio_informatics/wh_db/endocrine_panel.txt';
 
   open endoDB, "<$endo_db"
        or die "cannot open file $endo_db!\n";
@@ -307,7 +307,7 @@ sub acess_endocrine_panel {
 my %ner_dis;
 sub acess_nervous_panel {
   my $ner_lct=0;
-  my $ner_db = '/mnt/workshop/xinchen.pan/pipeline/pxc_tools/wh_db/nervous_panel_1801.txt';
+  my $ner_db = '/mnt/workshop/xinchen.pan/pipeline/bio_informatics/wh_db/nervous_panel.txt';
 
   open nerDB, "<$ner_db"
        or die "cannot open file $ner_db!\n";
@@ -547,7 +547,6 @@ sub anno_whpanel {
         foreach my $gene_name(@gene){
           if (grep {$_ eq $gene_name} @secondary_gene) {
             $gene_name.="*";
-            print "$gene_name\n";
           }
         }
         $line[6]=join",", @gene;

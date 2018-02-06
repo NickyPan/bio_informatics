@@ -13,9 +13,6 @@ die "Usage:
             -bed  bed type
             -t	sequencing type
             -fd	file_dir
-            -s	sh_dir
-            -g	gatk_dir
-            -f  fastq_dir
             -nl  file name length"
 
  unless @ARGV>=1;
@@ -28,9 +25,9 @@ my $file_type;
 my $bed;
 my $type;
 my $filedir;
-my $sh_dir;
-my $fq_dir;
-my $gk_dir;
+my $sh_dir="/mnt/workshop/xinchen.pan/pipeline/tools";
+my $fq_dir="./";
+my $gk_dir="/opt/seqtools/gatk";
 my $name_length;
 
 Getopt::Long::GetOptions (
@@ -41,9 +38,6 @@ Getopt::Long::GetOptions (
     'bed=s' => \$bed,
     't=s' => \$type,
     'fd=s' => \$filedir,
-    's:s' => \$sh_dir,
-    'g:s' => \$gk_dir,
-    "f:s" => \$fq_dir,
     "nl=s" => \$name_length,
 );
 
