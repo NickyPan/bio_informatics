@@ -365,7 +365,6 @@ sub acess_header {
   @header_old=split (/\t/, $line_old);
   push @header_old, @headin;
   $header_fixed=join ("\t", @header_old);
-  print "fixing_header done!\n";
 }
 
 sub anno_whpanel {
@@ -384,6 +383,7 @@ sub anno_whpanel {
     if ($line_count == 0) {
       acess_header($line);
       $line=$header_fixed;
+      print "fixing_header done!\n";
     }
     $line_count++;
 
