@@ -77,10 +77,10 @@ if ($in) {
     acess_eye_panel();
   }
   if($endo) {
-    acess_eye_panel();
+    acess_endocrine_panel();
   }
   if($nerv) {
-    acess_eye_panel();
+    acess_nervous_panel();
   }
   anno_whpanel();
   if($is_Relation) {
