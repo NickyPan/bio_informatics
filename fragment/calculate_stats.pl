@@ -3,9 +3,9 @@
 #name: calculate_stats
 #version: 0.1.0
 #Author: NickyPan
-#Modified By: NickyPan
+#Modified By: NickyPan 
 #Created time: 02/09/2018 9:03:47
-#Last Modified: 02/09/2018 11:39:59
+#Last Modified: 02/09/2018 11:46:41
 #########################
 
 use strict;
@@ -62,7 +62,6 @@ foreach my $file (@dir) {
     if ( $file =~ /\.sorted.depth$/) {
         calculate_stats($file);
     }
-    print "$file cal_done\n";
 }
 
 my $result=join"\n",@re;
@@ -153,11 +152,6 @@ sub calculate_stats {
   my $rt=join"\t",($sample_name[0],$mean_dp,$on_target,$total_dp,$depth_sum,$dp1_per,$dp4_per,$dp10_per,$dp20_per,$dp30_per,$dp40_per,$dp50_per,$dp100_per,$dp200_per,$dp500_per,$dp1000_per,$dp5000_per);
 
   push @re, $rt;
+  print "$sample_name[0] cal_done\n";
 
 }
-
-# my $out3=join"\n","Sample\t$depth","mean_read_depth_in_target_region\t$mean_dp","bases_covered_at_>=10X\t$dp10_per","bases_covered_at_>=30X\t$dp30_per","bases_covered_at_>=100X\t$dp100_per";
-# my $sp="################################################################################";
-# my $out=join"\n",$tt,$rt,$sp,$out3,$sp;
-
-
