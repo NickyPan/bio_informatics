@@ -1,6 +1,15 @@
-#! /usr/bin/perl -w
-use strict;
+#!/usr/bin/perl
+#########################
+#name: calculate_stats
+#version: 0.1.0
+#Author: NickyPan
+#Modified By: NickyPan
+#Created time: 02/09/2018 9:03:47
+#Last Modified: 02/09/2018 11:39:59
+#########################
 
+use strict;
+use warnings;
 use Getopt::Long;
 ##############usage##############################
 die "Usage:
@@ -11,16 +20,15 @@ die "Usage:
             -b  input:bed_file"
 unless @ARGV>=1;
 
-my $depth;
-my $summary;
+my $base_dir;
 my $bed;
 Getopt::Long::GetOptions (
-   'i=s' => \$depth,
-   'o=s' => \$summary,
+   'i=s' => \$base_dir,
    'b:s' => \$bed,
 
 );
 
+my $summary="$base_dir/target_depth_summary.txt";
 open SUM, ">$summary"
      or die "Cannot open file $summary!\n";
 open BED, "<$bed"
@@ -39,21 +47,26 @@ while(<BED>) {
     $bed{$pos}=0;
   }
 }
+print "bed_done\n";
 my @sites=keys %bed;
 my $sites=$#sites+1;
+my @dir;
 my @re;
 
-my $tt=join"\t",("sample","mean depth","dup","on-target","total depth",">=100X",">=50X",">=40X",">=30X",">=20X",">=10X",">=4X",">=500X",">=1000",">=5000");
+my $tt=join"\t",("sample","mean depth","on_target_ratio","target depth","total depth",">=1X",">=4X",">=10X",">=20X",">=30X",">=40X",">=50X",">=100X",">=500X",">=1000",">=5000");
 push @re, $tt;
 
-opendir (DIR, $basedir) or die "can't open the directory!";
+opendir (DIR, $base_dir) or die "can't open the directory!";
 @dir = readdir DIR;
 foreach my $file (@dir) {
-    if ( $file =~ /[a-z]*\.sorted.depth/) {
-        push (@file_list , $file);
+    if ( $file =~ /\.sorted.depth$/) {
         calculate_stats($file);
     }
+    print "$file cal_done\n";
 }
+
+my $result=join"\n",@re;
+print SUM "$result";
 
 sub calculate_stats {
   my $mean_dp=0;
@@ -72,10 +85,11 @@ sub calculate_stats {
   my $dp5000=0;
   my $depth_sum=0;
   my $on_target;
-  # my $sample_name=split
+  my $cal_file= $_[0];
+  my @sample_name=split('_', $cal_file);
 
-  open DP, "<$basedir/$_"
-      or die "Cannot open file $depth!\n";
+  open DP, "<$base_dir/$cal_file"
+      or die "Cannot open file $cal_file!\n";
 
   while (<DP>) {
     chomp;
@@ -121,7 +135,7 @@ sub calculate_stats {
     }
   }
 
-  $mean_dp=sprintf("%.2f", ($total_dp/$sites)*100);
+  $mean_dp=sprintf("%.2f", ($total_dp/$sites));
   $on_target=sprintf("%.2f", ($total_dp/$depth_sum)*100);
   my $dp1_per=sprintf("%.2f", ($dp1/$sites)*100);
   my $dp4_per=sprintf("%.2f", ($dp4/$sites)*100);
@@ -136,7 +150,7 @@ sub calculate_stats {
   my $dp1000_per=sprintf("%.2f", ($dp1000/$sites)*100);
   my $dp5000_per=sprintf("%.2f", ($dp5000/$sites)*100);
 
-  my $rt=join"\t",($sample_name,);
+  my $rt=join"\t",($sample_name[0],$mean_dp,$on_target,$total_dp,$depth_sum,$dp1_per,$dp4_per,$dp10_per,$dp20_per,$dp30_per,$dp40_per,$dp50_per,$dp100_per,$dp200_per,$dp500_per,$dp1000_per,$dp5000_per);
 
   push @re, $rt;
 
@@ -145,6 +159,5 @@ sub calculate_stats {
 # my $out3=join"\n","Sample\t$depth","mean_read_depth_in_target_region\t$mean_dp","bases_covered_at_>=10X\t$dp10_per","bases_covered_at_>=30X\t$dp30_per","bases_covered_at_>=100X\t$dp100_per";
 # my $sp="################################################################################";
 # my $out=join"\n",$tt,$rt,$sp,$out3,$sp;
-print SUM "$out\n";
 
 
