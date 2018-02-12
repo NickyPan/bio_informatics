@@ -67,6 +67,7 @@ my %dir=(
     "chrM"=>"/mnt/workshop/xinchen.pan/project/CHRM",
     "brca"=>"/mnt/workshop/xinchen.pan/project/Brca",
     "ppgl"=>"/mnt/workshop/xinchen.pan/project/PPGL",
+    "eye_pp_qz"=>"/mnt/workshop/xinchen.pan/project/WES/QZJD",
 );
 
 my %bed_list=(
