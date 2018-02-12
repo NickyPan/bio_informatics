@@ -86,7 +86,8 @@ my %bed_list=(
     "XLT"=>"XLT.intervals",
     "chrM"=>"chrM.intervals",
     "brca"=>"brca.intervals",
-    "ppgl"=>"PPGL.intervals"
+    "ppgl"=>"PPGL.intervals",
+    "eye_pp_qz"=>"eye_PPGL_WCQZ.intervals"
 );
 
 my %raw_vcf;
