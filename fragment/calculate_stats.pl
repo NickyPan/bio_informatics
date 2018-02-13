@@ -5,7 +5,7 @@
 #Author: NickyPan
 #Modified By: NickyPan 
 #Created time: 02/09/2018 9:03:47
-#Last Modified: 02/09/2018 11:46:41
+#Last Modified: 02/13/2018 10:51:49
 #########################
 
 use strict;
@@ -144,12 +144,11 @@ sub calculate_stats {
   my $dp40_per=sprintf("%.2f", ($dp40/$sites)*100);
   my $dp50_per=sprintf("%.2f", ($dp50/$sites)*100);
   my $dp100_per=sprintf("%.2f", ($dp100/$sites)*100);
-  my $dp200_per=sprintf("%.2f", ($dp200/$sites)*100);
   my $dp500_per=sprintf("%.2f", ($dp500/$sites)*100);
   my $dp1000_per=sprintf("%.2f", ($dp1000/$sites)*100);
   my $dp5000_per=sprintf("%.2f", ($dp5000/$sites)*100);
 
-  my $rt=join"\t",($sample_name[0],$mean_dp,$on_target,$total_dp,$depth_sum,$dp1_per,$dp4_per,$dp10_per,$dp20_per,$dp30_per,$dp40_per,$dp50_per,$dp100_per,$dp200_per,$dp500_per,$dp1000_per,$dp5000_per);
+  my $rt=join"\t",($sample_name[0],$mean_dp,$on_target,$total_dp,$depth_sum,$dp1_per,$dp4_per,$dp10_per,$dp20_per,$dp30_per,$dp40_per,$dp50_per,$dp100_per,$dp500_per,$dp1000_per,$dp5000_per);
 
   push @re, $rt;
   print "$sample_name[0] cal_done\n";
