@@ -52,4 +52,5 @@ if __name__ == "__main__":
             fileMerged = targetDir + file
             cmd = 'cat ' + fileOne + ' ' + fileTwo + ' > ' + fileMerged
             if cmd_check(cmd):
+                print ('start to merge:', file)
                 os.system(cmd)
