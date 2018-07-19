@@ -6,10 +6,10 @@ import scrapy
 
 class ccgSpider(scrapy.Spider):
     name = 'ccgpy'
-    URL_BASE = 'http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD10'
+    URL_BASE = 'http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD'
 
     def start_requests(self):
-        for num in range(101, 500):
+        for num in range(21, 41):
             page_url = self.URL_BASE + str(num)
             print (page_url)
             yield scrapy.Request(url=page_url, callback = self.parse)

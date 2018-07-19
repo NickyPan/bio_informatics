@@ -1,0 +1,19 @@
+[
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD21", "id": "CKD21", "cname": "肾结石", "ename": "Nephrolithiasis", "inherited": "常染色体隐形遗传,常染色体隐性遗传,常染色体显性遗传,X连锁隐性遗传", "diseaseId": "CKD21", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD26", "id": "CKD26", "cname": "继发性肾脏病", "ename": "Secondary kidney disease", "inherited": "常染色体显性遗传,常染色体隐性遗传", "diseaseId": "CKD26", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD28", "id": "CKD28", "cname": "自身免疫性疾病", "ename": "Autoimmune diseases", "inherited": "常染色体显性遗传", "diseaseId": "CKD28", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD29", "id": "CKD29", "cname": "自身炎症性疾病", "ename": "Autoinflammatory  diseases", "inherited": "", "diseaseId": "CKD29", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD31", "id": "CKD31", "cname": "Idiopathic febrile syndromes", "ename": "Idiopathic febrile syndromes", "inherited": "", "diseaseId": "CKD31", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD30", "id": "CKD30", "cname": "遗传性周期性发热", "ename": "Hereditary recurrent fevers", "inherited": "常染色体隐性遗传", "diseaseId": "CKD30", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD32", "id": "CKD32", "cname": "化脓性疾病", "ename": "Pyogenic disorders", "inherited": "", "diseaseId": "CKD32", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD33", "id": "CKD33", "cname": "肉芽肿性疾病", "ename": "Granulomatous diseases", "inherited": "", "diseaseId": "CKD33", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD34", "id": "CKD34", "cname": "自身炎症性皮肤病和骨病", "ename": "Autoinflammatory disorders of skin and bone", "inherited": "", "diseaseId": "CKD34", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD35", "id": "CKD35", "cname": "代谢性疾病", "ename": "Metabolic disorders", "inherited": "", "diseaseId": "CKD35", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD36", "id": "CKD36", "cname": "补体性疾病", "ename": "Complement disorders", "inherited": "常染色体显性遗传,常染色体隐性遗传", "diseaseId": "CKD36", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD22", "id": "CKD22", "cname": "先天性肾脏和泌尿道畸形", "ename": "Congenital abnormalities of the kidney and urinary tract", "inherited": "常染色体隐性遗传,常染色体显性遗传,X连锁隐性遗传,X连锁遗传", "diseaseId": "CKD22", "ratio": "NA", "omimId": "https://omim.org/entry/137920", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD37", "id": "CKD37", "cname": "血管炎", "ename": "Vasculitis", "inherited": "", "diseaseId": "CKD37", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD38", "id": "CKD38", "cname": "巨噬细胞活化综合征", "ename": "Macrophage activation syndromes", "inherited": "", "diseaseId": "CKD38", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD39", "id": "CKD39", "cname": "贮积病", "ename": "Storage diseases", "inherited": "", "diseaseId": "CKD39", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD40", "id": "CKD40", "cname": "纤维化疾病", "ename": "Fibrosing diseases", "inherited": "", "diseaseId": "CKD40", "ratio": "NA", "description": ""},
+{"url": "http://www.ccgkdd.com.cn/Disease/detail?DisCode=CKD24", "id": "CKD24", "cname": "肾小球疾病", "ename": "Glomerular diseases", "inherited": "常染色体隐性遗传,常染色体显性遗传,X连锁遗传,X连锁显性遗传,X连锁隐性遗传", "diseaseId": "CKD24", "ratio": "NA", "omimId": "https://omim.org/entry/194080", "description": ""}
+]

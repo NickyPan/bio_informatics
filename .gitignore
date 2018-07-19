@@ -8,6 +8,7 @@
 *.o
 *.so
 *.vcf
+*.pyc
 
 # Packages #
 ############
@@ -45,3 +46,4 @@ Thumbs.db
 whanno_test/
 .vscode/
 .test_files/
+__pycache__/
