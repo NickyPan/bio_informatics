@@ -1,0 +1,22 @@
+{
+    "PPGL": 233,
+    "STR": 380,
+    "YZ": 81,
+    "50gene": 205,
+    "brca": 148,
+    "YG": 458,
+    "paternity": 641,
+    "WES": 267,
+    "MLPA": 38,
+    "ET": 38,
+    "single-cell": 121,
+    "other": 239,
+    "chrMT": 15,
+    "NIPT": 48,
+    "CYP": 23,
+    "TP53": 16,
+    "DIS": 30,
+    "RNA": 14,
+    "WGS": 6,
+    "total": 3001
+}
