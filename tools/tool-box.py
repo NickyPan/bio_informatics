@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys, shutil
+from subprocess import Popen
 import argparse
 
 # optional args
@@ -25,7 +26,8 @@ def removeDir(path):
 def linkFile(path, dst):
     try:
         if os.path.isfile(path):
-            os.symlink(path, dst)
+            cmd = ['ln', '-s', path, dst]
+            Popen(cmd)
     except:
         sys.exit('link failed')
 
@@ -43,12 +45,23 @@ def scan_bam(path):
 def scan_vcf(path):
     for entry in os.scandir(path):
         if entry.is_dir() and entry.name == 'GVCF':
-            print (entry.path)
-        elif entry.is_file() and 'g.vcf.gz' in entry.name:
-            print(entry.name + '\t' + entry.path)
-            linkFile(entry.path, args.output)
+            vcf_file(entry.path)
         elif entry.is_dir():
             scan_vcf(entry.path)
+
+def vcf_file(path):
+    if os.path.isdir(path):
+        for entry in os.scandir(path):
+            if entry.is_file() and 'g.vcf.gz' in entry.name:
+                try:
+                    sample = entry.name.split('-')[1]
+                except IndexError:
+                    sample = entry.name[1:]
+                if 'F' in sample:
+                    print(entry.name + '\t' + entry.path)
+                    linkFile(entry.path, args.output)
+    else:
+        sys.exit('link file error')
 
 if args.delete:
     scan_bam(inputDir)
