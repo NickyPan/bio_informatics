@@ -54,6 +54,8 @@ if args.delete:
     scan_bam(inputDir)
     print ('remove process done!')
 
-if args.link_vcf:
+if args.link_vcf and args.output:
     scan_vcf(inputDir)
     print ('link process done!')
+else:
+    print ('miss out dir')
