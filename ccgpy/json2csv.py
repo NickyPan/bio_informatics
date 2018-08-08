@@ -10,11 +10,22 @@ with open(inputFile, encoding='utf-8') as jsons:
 print (len(json_data))
 
 res = []
-header = '\t'.join(list(json_data[0].keys()))
+header = '\t'.join(list(json_data[12].keys()))
 res.append(header)
 
 for data in json_data:
     string = ''
+
+    if data['url']:
+        string += data['url'] + '\t'
+    else:
+        string += '.\t'
+
+    if data['id']:
+        string += data['id'] + '\t'
+    else:
+        string += '.\t'
+
     if data['cname']:
         string += data['cname'] + '\t'
     else:
@@ -25,7 +36,7 @@ for data in json_data:
     else:
         string += '.\t'
 
-    if data['inherited']:
+    if 'inherited' in data.keys() and data['inherited']:
         string += data['inherited'] + '\t'
     else:
         string += '.\t'
