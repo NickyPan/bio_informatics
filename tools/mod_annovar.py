@@ -23,7 +23,7 @@ if args.output:
 
 def mod_clinvar(items):
     items = items.split('\t')
-    newLine = items[0] + '\t' + items[1] + '\t' + items[2] + '\t' + items[3] + '\t' + items[4] + '\t' + items[9].replace('\\x2c', ',') + '\t' + items[6].replace('\\x2c', ',') + '\t' +  items[7].replace('\\x2c', ',')
+    newLine = items[0] + '\t' + items[1] + '\t' + items[2] + '\t' + items[3] + '\t' + items[4] + '\t' + items[9].replace('\\x2c', ',') + '\t' + items[6].replace('\\x2c', ',') + '\t' + items[7].replace('\\x2c', ',')
     return newLine
 
 res = []
